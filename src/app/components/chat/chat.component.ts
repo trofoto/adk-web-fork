@@ -119,7 +119,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   artifacts: any[] = [];
   userInput: string = '';
   userEditEvalCaseMessage: string = '';
-  userId = 'user';
+  userId = 'user'; // Default user ID, can be overridden by URL parameter
   appName = '';
   sessionId = ``;
   evalCase: EvalCase | null = null;
@@ -239,6 +239,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.syncSelectedAppFromUrl();
     this.updateSelectedAppUrl();
+    this.syncSelectedUserFromUrl();
 
     this.webSocketService.onCloseReason().subscribe((closeReason) => {
       const error =
@@ -344,6 +345,14 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
               });
         }
       });
+    }
+  }
+
+  selectUser(userId: string) {
+    if (userId != this.userId) {
+      this.userId = userId;
+      // Reset session and events when user changes
+      this.createSessionAndReset();
     }
   }
 
@@ -1386,6 +1395,22 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
           queryParamsHandling: 'merge',
         });
       });
+  }
+
+  private syncSelectedUserFromUrl() {
+    combineLatest([
+      this.router.events.pipe(
+        filter((e) => e instanceof NavigationEnd),
+        map(() => this.activatedRoute.snapshot.queryParams),
+      ),
+      // Also check initial state
+      of(this.activatedRoute.snapshot.queryParams)
+    ]).subscribe(([params]) => {
+      const user = params['user'];
+      if (user && user !== this.userId) {
+        this.selectUser(user);
+      }
+    });
   }
 
   private updateSelectedSessionUrl() {
