@@ -29,9 +29,9 @@ export const DEFAULT_EVAL_METRICS: EvalMetric[] = [
   {
     metricName: 'tool_trajectory_avg_score',
     threshold: 1,
-  },
-  {
-    metricName: 'response_match_score',
-    threshold: 0.7,
+  // },
+  // {
+  //   metricName: 'response_match_score',
+  //   threshold: 0.7,
   }
 ];
